@@ -46,6 +46,8 @@ class CMakeFindPackageGenerator(Generator):
                 {find_dependencies_block}
             endif()
         endif()
+
+        {cmake_find_package_coda}
         """)
 
     find_components_tpl = Template(textwrap.dedent("""\
@@ -197,6 +199,10 @@ class CMakeFindPackageGenerator(Generator):
             endif()
         endif()
 
+        {%- if cmake_find_package_coda %}
+        # cmake_find_package_coda
+        {% endif %}
+
     """))
 
     @property
@@ -207,6 +213,13 @@ class CMakeFindPackageGenerator(Generator):
     def _get_name(cls, obj):
         get_name = getattr(obj, "get_name")
         return get_name(cls.name)
+
+    @staticmethod
+    def _get_cmake_find_package_coda(obj):
+        if hasattr(obj, "cmake_find_package_coda"):
+            return obj.cmake_find_package_coda
+        else:
+            return None
 
     @property
     def content(self):
@@ -255,6 +268,15 @@ class CMakeFindPackageGenerator(Generator):
         pkg_public_deps = [self._get_name(self.deps_build_info[public_dep]) for public_dep in
                            cpp_info.public_deps]
         pkg_public_deps_names = ";".join(["{n}::{n}".format(n=n) for n in pkg_public_deps])
+        print(f"MARIO 1 cpp_info.name={cpp_info.name}")
+
+        try:
+            cmake_find_package_coda = self._get_cmake_find_package_coda(cpp_info)
+        except BaseException as be:
+            print(f"MARIO exception: {be}")
+        print(f"MARIO 1 cpp_info.cmake_find_package_coda={cpp_info.cmake_find_package_coda}")
+        print(f"MARIO 1 cmake_find_package_coda={cmake_find_package_coda}")
+
         if cpp_info.components:
             components = self._get_components(pkg_name, pkg_findname, cpp_info)
             # Note these are in reversed order, from more dependent to less dependent
@@ -273,7 +295,8 @@ class CMakeFindPackageGenerator(Generator):
                 components=components,
                 conan_message=CMakeFindPackageCommonMacros.conan_message,
                 conan_find_apple_frameworks=CMakeFindPackageCommonMacros.apple_frameworks_macro,
-                conan_package_library_targets=CMakeFindPackageCommonMacros.conan_package_library_targets)
+                conan_package_library_targets=CMakeFindPackageCommonMacros.conan_package_library_targets,
+                cmake_find_package_coda=cmake_find_package_coda)
         else:
             # The common macros
             macros_and_functions = "\n".join([
@@ -302,8 +325,13 @@ class CMakeFindPackageGenerator(Generator):
                 # proper indentation
                 find_dependencies_block = ''.join("        " + line if line.strip() else line
                                                   for line in f.splitlines(True))
-
-            return self.find_template.format(name=pkg_findname, version=pkg_version,
+            try:
+                return self.find_template.format(name=pkg_findname, version=pkg_version,
                                              find_libraries_block=find_libraries_block,
                                              find_dependencies_block=find_dependencies_block,
-                                             macros_and_functions=macros_and_functions)
+                                             macros_and_functions=macros_and_functions,
+                                             cmake_find_package_coda=cmake_find_package_coda or "")
+            except BaseException as be:
+                print(f"MARIO error2 jinja' {be}")
+                import traceback
+                traceback.print_exc()

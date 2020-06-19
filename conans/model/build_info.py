@@ -43,6 +43,7 @@ class _CppInfo(object):
     def __init__(self):
         self.name = None
         self.names = {}
+        self.cmake_find_package_additional_code = None
         self.system_libs = []  # Ordered list of system libraries
         self.includedirs = []  # Ordered list of include paths
         self.srcdirs = []  # Ordered list of source paths
@@ -134,6 +135,9 @@ class _CppInfo(object):
 
     def get_name(self, generator):
         return self.names.get(generator, self.name)
+
+    # def get_cmake_find_package_additional_code(self):
+    #     return self.cmake_find_package_additional_code
 
     # Compatibility for 'cppflags' (old style property to allow decoration)
     def get_cppflags(self):
