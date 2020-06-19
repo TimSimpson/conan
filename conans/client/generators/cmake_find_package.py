@@ -268,14 +268,8 @@ class CMakeFindPackageGenerator(Generator):
         pkg_public_deps = [self._get_name(self.deps_build_info[public_dep]) for public_dep in
                            cpp_info.public_deps]
         pkg_public_deps_names = ";".join(["{n}::{n}".format(n=n) for n in pkg_public_deps])
-        print(f"MARIO 1 cpp_info.name={cpp_info.name}")
 
-        try:
-            cmake_find_package_coda = self._get_cmake_find_package_coda(cpp_info)
-        except BaseException as be:
-            print(f"MARIO exception: {be}")
-        print(f"MARIO 1 cpp_info.cmake_find_package_coda={cpp_info.cmake_find_package_coda}")
-        print(f"MARIO 1 cmake_find_package_coda={cmake_find_package_coda}")
+        cmake_find_package_coda = self._get_cmake_find_package_coda(cpp_info)
 
         if cpp_info.components:
             components = self._get_components(pkg_name, pkg_findname, cpp_info)
@@ -325,13 +319,8 @@ class CMakeFindPackageGenerator(Generator):
                 # proper indentation
                 find_dependencies_block = ''.join("        " + line if line.strip() else line
                                                   for line in f.splitlines(True))
-            try:
-                return self.find_template.format(name=pkg_findname, version=pkg_version,
-                                             find_libraries_block=find_libraries_block,
-                                             find_dependencies_block=find_dependencies_block,
-                                             macros_and_functions=macros_and_functions,
-                                             cmake_find_package_coda=cmake_find_package_coda or "")
-            except BaseException as be:
-                print(f"MARIO error2 jinja' {be}")
-                import traceback
-                traceback.print_exc()
+            return self.find_template.format(name=pkg_findname, version=pkg_version,
+                                         find_libraries_block=find_libraries_block,
+                                         find_dependencies_block=find_dependencies_block,
+                                         macros_and_functions=macros_and_functions,
+                                         cmake_find_package_coda=cmake_find_package_coda or "")
