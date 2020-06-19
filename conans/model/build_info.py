@@ -136,9 +136,6 @@ class _CppInfo(object):
     def get_name(self, generator):
         return self.names.get(generator, self.name)
 
-    # def get_cmake_find_package_additional_code(self):
-    #     return self.cmake_find_package_additional_code
-
     # Compatibility for 'cppflags' (old style property to allow decoration)
     def get_cppflags(self):
         conan_v2_behavior("'cpp_info.cppflags' is deprecated, use 'cxxflags' instead")
